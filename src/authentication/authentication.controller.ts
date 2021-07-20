@@ -14,8 +14,8 @@ import RegisterDto from './dto/register.dto';
 import RequestWithUser from './requestWithUser.interface';
 import { LocalAuthenticationGuard } from './localAuthentication.guard';
 import JwtAuthenticationGuard from './jwt-authentication.guard';
-import { Request } from 'express';
 import { JwtService } from '@nestjs/jwt';
+import JwtRefreshGuard from './jwt-refresh.guard';
 
 @Controller('authentication')
 export class AuthenticationController {
@@ -69,26 +69,15 @@ export class AuthenticationController {
     return user;
   }
 
+  @UseGuards(JwtRefreshGuard)
   @Get('refresh')
-  refresh(@Req() request: Request) {
-    try {
-      const refreshTokenData: any = this.jwtService.decode(
-        request.cookies.Refreshtoken,
-      );
-      if (refreshTokenData) {
-        const accessTokenCookie =
-          this.authenticationService.getCookieWithJwtAccessToken(
-            refreshTokenData.userId,
-          );
+  refresh(@Req() request: RequestWithUser) {
+    const accessTokenCookie =
+      this.authenticationService.getCookieWithJwtAccessToken(request.user.id);
 
-        request.res.cookie('Accesstoken', accessTokenCookie, {
-          path: '/',
-        });
-
-        return request.user;
-      }
-    } catch (error) {
-      console.log(error);
-    }
+    request.res.cookie('Accesstoken', accessTokenCookie, {
+      path: '/',
+    });
+    return request.user;
   }
 }

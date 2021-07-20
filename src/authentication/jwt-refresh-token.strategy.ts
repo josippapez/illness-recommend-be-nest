@@ -4,6 +4,7 @@ import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Request } from 'express';
 import { UsersService } from '../users/users.service';
+import { JwtService } from '@nestjs/jwt';
 import TokenPayload from './tokenPayload.interface';
 
 @Injectable()
@@ -14,11 +15,12 @@ export class JwtRefreshTokenStrategy extends PassportStrategy(
   constructor(
     private readonly configService: ConfigService,
     private readonly userService: UsersService,
+    private readonly jwtService: JwtService,
   ) {
     super({
       jwtFromRequest: ExtractJwt.fromExtractors([
         (request: Request) => {
-          return request?.cookies?.Refresh;
+          return request?.cookies?.Refreshtoken;
         },
       ]),
       secretOrKey: configService.get('JWT_REFRESH_TOKEN_SECRET'),
@@ -27,11 +29,6 @@ export class JwtRefreshTokenStrategy extends PassportStrategy(
   }
 
   async validate(request: Request, payload: TokenPayload) {
-    const refreshToken = request.cookies?.Refresh;
-    console.log(request.cookies);
-
-    if (refreshToken) {
-      return payload.userId;
-    }
+    return this.userService.getById(payload.userId);
   }
 }
