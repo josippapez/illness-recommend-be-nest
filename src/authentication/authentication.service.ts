@@ -6,6 +6,7 @@ import PostgresErrorCode from '../database/postgresErrorCode.enum';
 import { JwtService } from '@nestjs/jwt';
 import TokenPayload from './tokenPayload.interface';
 import { ConfigService } from '@nestjs/config';
+import * as Joi from '@hapi/joi';
 
 @Injectable()
 export class AuthenticationService {
@@ -15,9 +16,33 @@ export class AuthenticationService {
     private readonly configService: ConfigService,
   ) {}
 
+  serializer = Joi.object({
+    email: Joi.string().required(),
+    password: Joi.string().required(),
+    name: Joi.string().not(null).required(),
+  }).messages({
+    'string.base': `Vrijednost nije pravilnog formata`,
+    'string.empty': `Polje je obavezno`,
+    'any.required': `Polje je obavezno`,
+    'any.invalid': 'Polje je obavezno',
+  });
+
   public async register(registrationData: RegisterDto) {
-    const hashedPassword = await bcrypt.hash(registrationData.password, 10);
+    const result = this.serializer.validate(registrationData, {
+      abortEarly: false,
+    });
+    if (result.error) {
+      throw new HttpException(
+        [
+          ...result.error.details.map((error) => {
+            return { message: error.message, field: error.path[0] };
+          }),
+        ],
+        HttpStatus.BAD_REQUEST,
+      );
+    }
     try {
+      const hashedPassword = await bcrypt.hash(registrationData.password, 10);
       const createdUser = await this.usersService.create({
         ...registrationData,
         password: hashedPassword,
@@ -33,7 +58,7 @@ export class AuthenticationService {
       }
       throw new HttpException(
         'Nešto je pošlo po krivu',
-        HttpStatus.INTERNAL_SERVER_ERROR,
+        HttpStatus.BAD_REQUEST,
       );
     }
   }

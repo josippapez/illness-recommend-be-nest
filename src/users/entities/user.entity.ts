@@ -13,6 +13,9 @@ class User {
 
   @Column()
   public password: string;
+
+  @Column({ default: 'user' })
+  public role: string;
 }
 
 export default User;

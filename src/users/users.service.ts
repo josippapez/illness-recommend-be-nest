@@ -1,7 +1,7 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import User from './user.entity';
+import User from './entities/user.entity';
 import CreateUserDto from './dto/createUser.dto';
 
 @Injectable()
@@ -10,6 +10,17 @@ export class UsersService {
     @InjectRepository(User)
     private usersRepository: Repository<User>,
   ) {}
+
+  async getAllUsers() {
+    const users = await this.usersRepository.find();
+    if (users) {
+      return users;
+    }
+    throw new HttpException(
+      'Ne postoje uneseni korisnici',
+      HttpStatus.NOT_FOUND,
+    );
+  }
 
   async getByEmail(email: string) {
     const user = await this.usersRepository.findOne({ email });
