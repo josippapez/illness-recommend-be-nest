@@ -1,21 +1,24 @@
 import { Min } from 'class-validator';
+import { Alergy } from 'src/alergies/entities/alergy.entity';
 import User from 'src/users/entities/user.entity';
 import {
   Column,
   Entity,
   JoinColumn,
+  JoinTable,
+  ManyToMany,
   OneToOne,
-  PrimaryGeneratedColumn,
+  PrimaryColumn,
 } from 'typeorm';
 
 @Entity()
 export class UsersDetail {
-  @PrimaryGeneratedColumn()
+  @PrimaryColumn({ nullable: false })
   public id: number;
 
   @OneToOne(() => User)
-  @JoinColumn()
-  public userId: User;
+  @JoinColumn({ name: 'id' })
+  public userId: number;
 
   @Column()
   @Min(0)
@@ -28,6 +31,17 @@ export class UsersDetail {
   @Column()
   public pregnantOrBreastFeed: boolean;
 
-  @Column('text', { array: true })
-  public alergies: string[];
+  @ManyToMany(() => Alergy, (alergy) => alergy.id)
+  @JoinTable({
+    name: 'users_detail_alergies_alergy',
+    joinColumn: {
+      name: 'usersDetailId',
+      referencedColumnName: 'id',
+    },
+    inverseJoinColumn: {
+      name: 'alergyId',
+      referencedColumnName: 'id',
+    },
+  })
+  public alergies: Alergy[];
 }

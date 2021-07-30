@@ -6,6 +6,8 @@ import { DatabaseModule } from './database/database.module';
 import { UsersModule } from './users/users.module';
 import { MedicationsModule } from './medications/medications.module';
 import { UsersDetailsModule } from './users-details/users-details.module';
+import { AlergiesModule } from './alergies/alergies.module';
+import { UsersDetailAlergiesAlergyModule } from './users-detail-alergies-alergy/users-detail-alergies-alergy.module';
 
 @Module({
   imports: [
@@ -28,6 +30,8 @@ import { UsersDetailsModule } from './users-details/users-details.module';
     UsersModule,
     MedicationsModule,
     UsersDetailsModule,
+    AlergiesModule,
+    UsersDetailAlergiesAlergyModule,
   ],
   controllers: [],
   providers: [],

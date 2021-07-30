@@ -26,20 +26,31 @@ export class UsersDetailsController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.usersDetailsService.findOne(+id);
+  async findOne(@Param('id') id: number) {
+    const userDetail = await this.usersDetailsService.findOne(id);
+    if (userDetail) {
+      return userDetail;
+    }
+    return 'null';
   }
 
   @Patch(':id')
-  update(
-    @Param('id') id: string,
+  async update(
+    @Param('id') id: number,
     @Body() updateUsersDetailDto: UpdateUsersDetailDto,
   ) {
-    return this.usersDetailsService.update(+id, updateUsersDetailDto);
+    const userDetail = this.usersDetailsService.update(
+      id,
+      updateUsersDetailDto,
+    );
+    if (userDetail) {
+      return userDetail;
+    }
+    return 'null';
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.usersDetailsService.remove(+id);
+  remove(@Param('id') id: number) {
+    return this.usersDetailsService.remove(id);
   }
 }
