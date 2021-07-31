@@ -30,12 +30,9 @@ export class MedicationsController {
     return this.medicationsService.findOne(+id);
   }
 
-  @Patch(':id')
-  update(
-    @Param('id') id: string,
-    @Body() updateMedicationDto: UpdateMedicationDto,
-  ) {
-    return this.medicationsService.update(+id, updateMedicationDto);
+  @Patch()
+  async update(@Body() createMedicationDto: CreateMedicationDto) {
+    return await this.medicationsService.update(createMedicationDto);
   }
 
   @Delete(':id')

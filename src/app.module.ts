@@ -7,7 +7,7 @@ import { UsersModule } from './users/users.module';
 import { MedicationsModule } from './medications/medications.module';
 import { UsersDetailsModule } from './users-details/users-details.module';
 import { AlergiesModule } from './alergies/alergies.module';
-import { UsersDetailAlergiesAlergyModule } from './users-detail-alergies-alergy/users-detail-alergies-alergy.module';
+import { SymptomModule } from './symptom/symptom.module';
 
 @Module({
   imports: [
@@ -31,7 +31,7 @@ import { UsersDetailAlergiesAlergyModule } from './users-detail-alergies-alergy/
     MedicationsModule,
     UsersDetailsModule,
     AlergiesModule,
-    UsersDetailAlergiesAlergyModule,
+    SymptomModule,
   ],
   controllers: [],
   providers: [],

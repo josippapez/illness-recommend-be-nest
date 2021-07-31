@@ -7,6 +7,7 @@ import {
   JoinColumn,
   JoinTable,
   ManyToMany,
+  OneToMany,
   OneToOne,
   PrimaryColumn,
 } from 'typeorm';
@@ -16,7 +17,9 @@ export class UsersDetail {
   @PrimaryColumn({ nullable: false })
   public id: number;
 
-  @OneToOne(() => User)
+  @OneToOne(() => User, (user) => user.id, {
+    primary: true,
+  })
   @JoinColumn({ name: 'id' })
   public userId: number;
 
@@ -31,7 +34,10 @@ export class UsersDetail {
   @Column()
   public pregnantOrBreastFeed: boolean;
 
-  @ManyToMany(() => Alergy, (alergy) => alergy.id)
+  @ManyToMany(() => Alergy, (alergy) => alergy.id, {
+    cascade: true,
+    eager: false,
+  })
   @JoinTable({
     name: 'users_detail_alergies_alergy',
     joinColumn: {

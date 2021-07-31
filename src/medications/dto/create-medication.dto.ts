@@ -1,8 +1,12 @@
+import { Alergy } from 'src/alergies/entities/alergy.entity';
+import { Symptom } from 'src/symptom/entities/symptom.entity';
+
 export class CreateMedicationDto {
+  id: number;
   name: string;
   description: string;
-  indications: string;
-  contraindications: string;
-  sideEffects: string[];
-  symptoms: string[];
+  contraindications: string[];
+  sideEffects: JSON;
+  symptoms: Symptom[];
+  alergies: Alergy[];
 }

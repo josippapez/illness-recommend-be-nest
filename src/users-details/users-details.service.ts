@@ -1,9 +1,11 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Alergy } from 'src/alergies/entities/alergy.entity';
+import { getConnection, Repository } from 'typeorm';
 import { CreateUsersDetailDto } from './dto/create-users-detail.dto';
 import { UpdateUsersDetailDto } from './dto/update-users-detail.dto';
 import { UsersDetail } from './entities/users-detail.entity';
+import * as Joi from '@hapi/joi';
 
 @Injectable()
 export class UsersDetailsService {
@@ -12,13 +14,42 @@ export class UsersDetailsService {
     private userDetailsRepository: Repository<UsersDetail>,
   ) {}
 
-  create(createUsersDetailDto: CreateUsersDetailDto) {
-    const newUserDetail =
-      this.userDetailsRepository.create(createUsersDetailDto);
-    if (newUserDetail) {
-      return newUserDetail;
-    } else {
-      throw new Error('Greška pri spremanju');
+  serializer = Joi.object({
+    id: Joi.not(null).required(),
+    alergies: Joi.array(),
+    age: Joi.not(null).required(),
+    weight: Joi.not(null).required(),
+    pregnantOrBreastFeed: Joi.boolean().required(),
+  }).messages({
+    'any.required': `Polje je obavezno`,
+    'any.invalid': 'Polje je obavezno',
+  });
+
+  async create(createUsersDetailDto: CreateUsersDetailDto) {
+    const result = this.serializer.validate(createUsersDetailDto, {
+      abortEarly: false,
+    });
+
+    if (result.error) {
+      const arrayOfErrors = [
+        ...result.error.details.map((error) => {
+          return { message: error.message, field: error.path[0] };
+        }),
+      ];
+      throw new HttpException(arrayOfErrors, HttpStatus.BAD_REQUEST);
+    }
+    try {
+      const newUserDetail = await this.userDetailsRepository.save(
+        createUsersDetailDto,
+      );
+      if (newUserDetail) {
+        return newUserDetail;
+      }
+    } catch (error) {
+      throw new HttpException(
+        'Nešto je pošlo po krivu',
+        HttpStatus.BAD_REQUEST,
+      );
     }
   }
 
@@ -32,8 +63,14 @@ export class UsersDetailsService {
     });
   }
 
-  update(id: number, updateUsersDetailDto: UpdateUsersDetailDto) {
-    return this.userDetailsRepository.update(id, updateUsersDetailDto);
+  async update(createUsersDetailDto: CreateUsersDetailDto) {
+    const newUserDetail = await this.userDetailsRepository.save(
+      createUsersDetailDto,
+    );
+
+    if (newUserDetail) {
+      return 'Promjene uspješno spremljene';
+    }
   }
 
   remove(id: number) {

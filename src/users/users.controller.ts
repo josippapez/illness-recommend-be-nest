@@ -1,4 +1,4 @@
-import { Controller, Get, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, UseGuards } from '@nestjs/common';
 import { UsersService } from './users.service';
 import JwtRefreshGuard from '../authentication/jwt-refresh.guard';
 import { RolesGuard } from 'src/authentication/Roles.Guard';
@@ -14,5 +14,15 @@ export class UsersController {
   @Roles('admin')
   getAll() {
     return this.usersService.getAllUsers();
+  }
+
+  @Delete('/delete')
+  @UseGuards(JwtRefreshGuard)
+  @Roles('admin')
+  remove(
+    @Body()
+    id: number,
+  ) {
+    return this.usersService.delete(id);
   }
 }

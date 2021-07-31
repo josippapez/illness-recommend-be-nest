@@ -45,8 +45,15 @@ export class UsersService {
   }
 
   async create(userData: CreateUserDto) {
-    const newUser = await this.usersRepository.create(userData);
+    const newUser = this.usersRepository.create(userData);
     await this.usersRepository.save(newUser);
     return newUser;
+  }
+
+  async delete(id: number) {
+    const response = await this.usersRepository.delete(id);
+    if (response) {
+      return { successMessage: 'Korisnik uspješno obrisan' };
+    }
   }
 }
