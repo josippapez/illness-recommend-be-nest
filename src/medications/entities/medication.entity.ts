@@ -20,9 +20,10 @@ export class Medication {
   public contraindications: string[];
   @Column('json')
   public sideEffects: JSON;
-  @ManyToMany(() => Symptom, (symptom) => symptom.id, {
+  @ManyToMany(() => Symptom, (symptom) => symptom.medications, {
     cascade: true,
     eager: true,
+    onDelete: 'CASCADE',
   })
   @JoinTable({
     name: 'medications_symptoms',
@@ -36,9 +37,10 @@ export class Medication {
     },
   })
   public symptoms: Symptom[];
-  @ManyToMany(() => Alergy, (alergy) => alergy.id, {
+  @ManyToMany(() => Alergy, (alergy) => alergy.medications, {
     cascade: true,
     eager: true,
+    onDelete: 'CASCADE',
   })
   @JoinTable({
     name: 'medications_alergies',

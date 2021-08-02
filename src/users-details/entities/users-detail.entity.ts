@@ -19,6 +19,7 @@ export class UsersDetail {
 
   @OneToOne(() => User, (user) => user.id, {
     primary: true,
+    onDelete: 'CASCADE',
   })
   @JoinColumn({ name: 'id' })
   public userId: number;
@@ -35,8 +36,8 @@ export class UsersDetail {
   public pregnantOrBreastFeed: boolean;
 
   @ManyToMany(() => Alergy, (alergy) => alergy.id, {
-    cascade: true,
     eager: false,
+    onDelete: 'CASCADE',
   })
   @JoinTable({
     name: 'users_detail_alergies_alergy',

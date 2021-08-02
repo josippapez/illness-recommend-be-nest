@@ -1,12 +1,12 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Not, Repository } from 'typeorm';
 import { CreateMedicationDto } from './dto/create-medication.dto';
-import { UpdateMedicationDto } from './dto/update-medication.dto';
 import { Medication } from './entities/medication.entity';
 import * as Joi from '@hapi/joi';
 import { Alergy } from 'src/alergies/entities/alergy.entity';
 import { Symptom } from 'src/symptom/entities/symptom.entity';
+import { ArrayMinSize } from 'class-validator';
 @Injectable()
 export class MedicationsService {
   constructor(
@@ -28,6 +28,13 @@ export class MedicationsService {
   }).messages({
     'string.base': `Vrijednost nije pravilnog formata`,
     'string.empty': `Polje je obavezno`,
+    'any.required': `Polje je obavezno`,
+    'any.invalid': 'Polje je obavezno',
+  });
+
+  serializerForDelete = Joi.object({
+    id: Joi.not(null).required(),
+  }).messages({
     'any.required': `Polje je obavezno`,
     'any.invalid': 'Polje je obavezno',
   });
@@ -94,18 +101,66 @@ export class MedicationsService {
   }
 
   async update(createMedicationDto: CreateMedicationDto) {
-    console.log(createMedicationDto);
-
     const updatedMedication = await this.medicationRepository.save(
       createMedicationDto,
     );
 
     if (updatedMedication) {
+      this.removeUnusedAlergies();
+      this.removeUnusedSymptoms();
       return 'Promjene uspješno spremljene';
     }
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} medication`;
+  async remove(id: number) {
+    const result = this.serializerForDelete.validate(id, {
+      abortEarly: false,
+    });
+
+    if (result.error) {
+      const arrayOfErrors = [
+        ...result.error.details.map((error) => {
+          return { message: error.message, field: error.path[0] };
+        }),
+      ];
+      throw new HttpException(arrayOfErrors, HttpStatus.BAD_REQUEST);
+    }
+
+    const response = await this.medicationRepository.delete(id);
+    if (response) {
+      this.removeUnusedAlergies();
+      this.removeUnusedSymptoms();
+      return { successMessage: 'Lijek uspješno obrisan' };
+    }
+  }
+
+  async removeUnusedSymptoms() {
+    const symptoms = await this.symptomRepository.find({
+      relations: ['medications'],
+    });
+    const arrayOfSymptomsIds = [];
+    symptoms.filter((symptom) => {
+      if (symptom.medications.length === 0) {
+        arrayOfSymptomsIds.push(symptom.id);
+      }
+    });
+    if (arrayOfSymptomsIds.length) {
+      await this.symptomRepository.delete(arrayOfSymptomsIds);
+    }
+  }
+
+  async removeUnusedAlergies() {
+    const alergies = await this.alergyRepository.find({
+      relations: ['medications'],
+    });
+    const arrayOfAlergiesIds = [];
+    alergies.filter((alergy) => {
+      if (alergy.medications.length === 0) {
+        arrayOfAlergiesIds.push(alergy.id);
+      }
+    });
+    if (arrayOfAlergiesIds.length) {
+      await this.alergyRepository.delete(arrayOfAlergiesIds);
+    }
   }
 }

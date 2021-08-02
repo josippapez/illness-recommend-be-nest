@@ -6,7 +6,9 @@ import {
   Patch,
   Param,
   Delete,
+  UseGuards,
 } from '@nestjs/common';
+import JwtRefreshGuard from 'src/authentication/jwt-refresh.guard';
 import { SymptomService } from './symptom.service';
 import { CreateSymptomDto } from './dto/create-symptom.dto';
 import { UpdateSymptomDto } from './dto/update-symptom.dto';
@@ -20,6 +22,7 @@ export class SymptomController {
     return this.symptomService.create(createSymptomDto);
   }
 
+  @UseGuards(JwtRefreshGuard)
   @Get()
   findAll() {
     return this.symptomService.findAll();

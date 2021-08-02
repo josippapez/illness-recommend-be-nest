@@ -1,9 +1,7 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Alergy } from 'src/alergies/entities/alergy.entity';
-import { getConnection, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import { CreateUsersDetailDto } from './dto/create-users-detail.dto';
-import { UpdateUsersDetailDto } from './dto/update-users-detail.dto';
 import { UsersDetail } from './entities/users-detail.entity';
 import * as Joi from '@hapi/joi';
 

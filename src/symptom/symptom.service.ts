@@ -1,15 +1,23 @@
 import { Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 import { CreateSymptomDto } from './dto/create-symptom.dto';
 import { UpdateSymptomDto } from './dto/update-symptom.dto';
+import { Symptom } from './entities/symptom.entity';
 
 @Injectable()
 export class SymptomService {
+  constructor(
+    @InjectRepository(Symptom)
+    private symptomRepository: Repository<Symptom>,
+  ) {}
+
   create(createSymptomDto: CreateSymptomDto) {
     return 'This action adds a new symptom';
   }
 
   findAll() {
-    return `This action returns all symptom`;
+    return this.symptomRepository.find();
   }
 
   findOne(id: number) {
