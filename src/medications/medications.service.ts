@@ -1,12 +1,13 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Not, Repository } from 'typeorm';
+import { getManager, In, Repository } from 'typeorm';
 import { CreateMedicationDto } from './dto/create-medication.dto';
 import { Medication } from './entities/medication.entity';
 import * as Joi from '@hapi/joi';
 import { Alergy } from 'src/alergies/entities/alergy.entity';
 import { Symptom } from 'src/symptom/entities/symptom.entity';
-import { ArrayMinSize } from 'class-validator';
+import { UsersDetail } from 'src/users-details/entities/users-detail.entity';
+
 @Injectable()
 export class MedicationsService {
   constructor(
@@ -63,11 +64,13 @@ export class MedicationsService {
       ];
       throw new HttpException(arrayOfErrors, HttpStatus.BAD_REQUEST);
     }
+    createMedicationDto.alergies.push({ name: createMedicationDto.name });
     createMedicationDto.alergies.map(async (alergy) => {
       if (!this.alergyRepository.find({ name: alergy.name })) {
-        await this.alergyRepository.save({ name: alergy.name });
+        await this.alergyRepository.save(alergy);
       }
     });
+    createMedicationDto.alergies.pop();
     createMedicationDto.symptoms.map(async (symptom) => {
       if (!this.symptomRepository.find({ name: symptom.name })) {
         await this.symptomRepository.save({ name: symptom.name });
@@ -75,7 +78,7 @@ export class MedicationsService {
     });
     const newMedication = this.medicationRepository.create(createMedicationDto);
     await this.medicationRepository.save(newMedication);
-    return newMedication;
+    return { ...newMedication, successMessage: 'Lijek uspješno kreiran' };
   }
 
   async findAll() {
@@ -87,6 +90,73 @@ export class MedicationsService {
       'Ne postoje uneseni lijekovi',
       HttpStatus.NOT_FOUND,
     );
+  }
+
+  async findBySymptoms(symptoms: Symptom[], userId: number) {
+    const userDetails = await getManager()
+      .getRepository(UsersDetail)
+      .findOne(userId, { relations: ['alergies'] });
+    console.log(userDetails.alergies);
+
+    const alergiesByName = [
+      ...userDetails.alergies.map((userDetailAlergy) => userDetailAlergy.name),
+    ];
+    if (symptoms && symptoms.length) {
+      const symptomsFound = await this.symptomRepository.findByIds(
+        [...symptoms.map((requestSymptom) => requestSymptom.id)],
+        { relations: ['medications'] },
+      );
+      const extractedMedicationsFromSymptoms = symptomsFound.map(
+        (symptom) => symptom.medications,
+      );
+      const flattenedArrayOfMedications = [].concat(
+        [],
+        ...extractedMedicationsFromSymptoms,
+      );
+
+      const uniq = flattenedArrayOfMedications
+        .map((medication) => {
+          return { count: 1, medication: medication };
+        })
+        .reduce((a, b) => {
+          a[b.medication.name] = (a[b.medication.name] || 0) + b.count;
+          return a;
+        }, {});
+
+      const sorted = Object.keys(uniq).sort((a, b) =>
+        uniq[a] > uniq[b] ? -1 : uniq[a] < uniq[b] ? 1 : 0,
+      );
+      const medications = await this.medicationRepository.find({
+        where: { name: In(sorted) },
+      });
+      const sortedMedications = sorted.map((medication) =>
+        medications.find((med) => med.name === medication),
+      );
+
+      console.log(
+        alergiesByName,
+        sortedMedications.filter(
+          (medication) =>
+            !medication.alergies.find((medicationAlergy) =>
+              alergiesByName.includes(medicationAlergy.name),
+            ) && medication,
+        ),
+      );
+      return sortedMedications.filter(
+        (medication) =>
+          !medication.alergies.find((medicationAlergy) =>
+            alergiesByName.includes(medicationAlergy.name),
+          ) && medication,
+      );
+    } else {
+      const medications = await this.medicationRepository.find();
+      return medications.filter(
+        (medication) =>
+          !medication.alergies.find((medicationAlergy) =>
+            alergiesByName.includes(medicationAlergy.name),
+          ) && medication,
+      );
+    }
   }
 
   async findOne(id: number) {
@@ -108,7 +178,7 @@ export class MedicationsService {
     if (updatedMedication) {
       this.removeUnusedAlergies();
       this.removeUnusedSymptoms();
-      return 'Promjene uspješno spremljene';
+      return { successMessage: 'Promjene uspješno spremljene' };
     }
   }
 

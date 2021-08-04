@@ -7,44 +7,54 @@ import {
   Param,
   Delete,
   UseGuards,
+  Req,
 } from '@nestjs/common';
 import { MedicationsService } from './medications.service';
 import { CreateMedicationDto } from './dto/create-medication.dto';
-import { UpdateMedicationDto } from './dto/update-medication.dto';
 import JwtRefreshGuard from 'src/authentication/jwt-refresh.guard';
 import { Roles } from 'src/authentication/Roles.decorator';
 import { RolesGuard } from 'src/authentication/Roles.Guard';
+import { Symptom } from 'src/symptom/entities/symptom.entity';
+import JwtAuthenticationGuard from 'src/authentication/jwt-authentication.guard';
+import RequestWithUser from 'src/authentication/requestWithUser.interface';
 
 @Controller('medications')
 @UseGuards(RolesGuard)
 export class MedicationsController {
   constructor(private readonly medicationsService: MedicationsService) {}
 
-  @UseGuards(JwtRefreshGuard)
+  @UseGuards(JwtAuthenticationGuard)
   @Post()
   create(@Body() createMedicationDto: CreateMedicationDto) {
     return this.medicationsService.create(createMedicationDto);
   }
 
-  @UseGuards(JwtRefreshGuard)
+  @UseGuards(JwtAuthenticationGuard)
   @Get()
   findAll() {
     return this.medicationsService.findAll();
   }
 
-  @UseGuards(JwtRefreshGuard)
+  @UseGuards(JwtAuthenticationGuard)
+  @Post('/find-by-symptoms')
+  findBySymptoms(@Body() symptoms: Symptom[], @Req() user: RequestWithUser) {
+    return this.medicationsService.findBySymptoms(symptoms, user.user.id);
+  }
+
+  @UseGuards(JwtAuthenticationGuard)
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.medicationsService.findOne(+id);
   }
 
-  @UseGuards(JwtRefreshGuard)
+  @UseGuards(JwtAuthenticationGuard)
+  @Roles('admin')
   @Patch()
   async update(@Body() createMedicationDto: CreateMedicationDto) {
     return await this.medicationsService.update(createMedicationDto);
   }
 
-  @UseGuards(JwtRefreshGuard)
+  @UseGuards(JwtAuthenticationGuard)
   @Delete('/delete')
   @Roles('admin')
   remove(@Body() id: number) {

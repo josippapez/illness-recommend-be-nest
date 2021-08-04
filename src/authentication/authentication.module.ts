@@ -8,6 +8,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { JwtRefreshTokenStrategy } from './jwt-refresh-token.strategy';
 import { ConfigModule } from '@nestjs/config';
 import { JwtStrategy } from './jwt.strategy';
+import { JwtAccessTokenStrategy } from './jwt-access-token.strategy';
 
 @Module({
   imports: [UsersModule, PassportModule, ConfigModule, JwtModule.register({})],
@@ -16,6 +17,7 @@ import { JwtStrategy } from './jwt.strategy';
     LocalStrategy,
     JwtStrategy,
     JwtRefreshTokenStrategy,
+    JwtAccessTokenStrategy,
   ],
   controllers: [AuthenticationController],
 })

@@ -10,29 +10,29 @@ import {
 } from '@nestjs/common';
 import { UsersDetailsService } from './users-details.service';
 import { CreateUsersDetailDto } from './dto/create-users-detail.dto';
-import JwtRefreshGuard from 'src/authentication/jwt-refresh.guard';
 import { RolesGuard } from 'src/authentication/Roles.Guard';
 import { Roles } from 'src/authentication/Roles.decorator';
+import JwtAuthenticationGuard from 'src/authentication/jwt-authentication.guard';
 
 @Controller('users-details')
 @UseGuards(RolesGuard)
 export class UsersDetailsController {
   constructor(private readonly usersDetailsService: UsersDetailsService) {}
 
-  @UseGuards(JwtRefreshGuard)
+  @UseGuards(JwtAuthenticationGuard)
   @Post()
   create(@Body() createUsersDetailDto: CreateUsersDetailDto) {
     return this.usersDetailsService.create(createUsersDetailDto);
   }
 
-  @UseGuards(JwtRefreshGuard)
+  @UseGuards(JwtAuthenticationGuard)
   @Get()
   @Roles('admin')
   findAll() {
     return this.usersDetailsService.findAll();
   }
 
-  @UseGuards(JwtRefreshGuard)
+  @UseGuards(JwtAuthenticationGuard)
   @Get(':id')
   async findOne(@Param('id') id: number) {
     const userDetail = await this.usersDetailsService.findOne(id);
@@ -42,7 +42,7 @@ export class UsersDetailsController {
     return 'null';
   }
 
-  @UseGuards(JwtRefreshGuard)
+  @UseGuards(JwtAuthenticationGuard)
   @Patch()
   async update(@Body() createUsersDetailDto: CreateUsersDetailDto) {
     const userDetail = this.usersDetailsService.update(createUsersDetailDto);
@@ -52,7 +52,7 @@ export class UsersDetailsController {
     return 'null';
   }
 
-  @UseGuards(JwtRefreshGuard)
+  @UseGuards(JwtAuthenticationGuard)
   @Delete(':id')
   remove(@Param('id') id: number) {
     return this.usersDetailsService.remove(id);

@@ -1,1 +1,3 @@
-export class CreateSymptomDto {}
+export class CreateSymptomDto {
+  name: string;
+}

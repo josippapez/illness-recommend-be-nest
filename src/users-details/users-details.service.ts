@@ -41,7 +41,10 @@ export class UsersDetailsService {
         createUsersDetailDto,
       );
       if (newUserDetail) {
-        return newUserDetail;
+        return {
+          ...newUserDetail,
+          successMessage: 'Podaci uspješno spremljeni',
+        };
       }
     } catch (error) {
       throw new HttpException(
@@ -67,7 +70,7 @@ export class UsersDetailsService {
     );
 
     if (newUserDetail) {
-      return 'Promjene uspješno spremljene';
+      return { successMessage: 'Promjene uspješno spremljene' };
     }
   }
 

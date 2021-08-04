@@ -95,7 +95,10 @@ export class AuthenticationService {
       await this.verifyPassword(plainTextPassword, user.password);
       return user;
     } catch (error) {
-      throw new HttpException('Krivi podaci poslani', HttpStatus.BAD_REQUEST);
+      throw new HttpException(
+        { successMessage: 'Krivi podaci poslani' },
+        HttpStatus.BAD_REQUEST,
+      );
     }
   }
 
@@ -108,7 +111,10 @@ export class AuthenticationService {
       hashedPassword,
     );
     if (!isPasswordMatching) {
-      throw new HttpException('Krivi podaci poslani', HttpStatus.BAD_REQUEST);
+      throw new HttpException(
+        { successMessage: 'Krivi podaci poslani' },
+        HttpStatus.BAD_REQUEST,
+      );
     }
   }
 }

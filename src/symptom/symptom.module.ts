@@ -4,14 +4,15 @@ import { SymptomController } from './symptom.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Symptom } from './entities/symptom.entity';
 import User from 'src/users/entities/user.entity';
+import { UsersService } from 'src/users/users.service';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([Symptom]),
-    /*  TypeOrmModule.forFeature([User]), */
+    TypeOrmModule.forFeature([User]),
   ],
   exports: [SymptomService],
   controllers: [SymptomController],
-  providers: [SymptomService],
+  providers: [SymptomService, UsersService],
 })
 export class SymptomModule {}

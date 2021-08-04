@@ -1,4 +1,3 @@
-import { Alergy } from 'src/alergies/entities/alergy.entity';
 import { Symptom } from 'src/symptom/entities/symptom.entity';
 
 export class CreateMedicationDto {
@@ -8,5 +7,5 @@ export class CreateMedicationDto {
   contraindications: string[];
   sideEffects: JSON;
   symptoms: Symptom[];
-  alergies: Alergy[];
+  alergies: { name: string }[];
 }
