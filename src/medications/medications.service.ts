@@ -22,6 +22,7 @@ export class MedicationsService {
   serializer = Joi.object({
     name: Joi.string().not(null).required(),
     description: Joi.string().not(null).required(),
+    canBeUsedWhilePregnantOrBreastFeed: Joi.boolean().not(null),
     contraindications: Joi.array().required(),
     sideEffects: Joi.object().required(),
     symptoms: Joi.array().required(),
@@ -64,13 +65,11 @@ export class MedicationsService {
       ];
       throw new HttpException(arrayOfErrors, HttpStatus.BAD_REQUEST);
     }
-    createMedicationDto.alergies.push({ name: createMedicationDto.name });
     createMedicationDto.alergies.map(async (alergy) => {
       if (!this.alergyRepository.find({ name: alergy.name })) {
         await this.alergyRepository.save(alergy);
       }
     });
-    createMedicationDto.alergies.pop();
     createMedicationDto.symptoms.map(async (symptom) => {
       if (!this.symptomRepository.find({ name: symptom.name })) {
         await this.symptomRepository.save({ name: symptom.name });
@@ -96,7 +95,6 @@ export class MedicationsService {
     const userDetails = await getManager()
       .getRepository(UsersDetail)
       .findOne(userId, { relations: ['alergies'] });
-    console.log(userDetails.alergies);
 
     const alergiesByName = [
       ...userDetails.alergies.map((userDetailAlergy) => userDetailAlergy.name),
@@ -133,28 +131,29 @@ export class MedicationsService {
         medications.find((med) => med.name === medication),
       );
 
-      console.log(
-        alergiesByName,
-        sortedMedications.filter(
-          (medication) =>
-            !medication.alergies.find((medicationAlergy) =>
+      return sortedMedications.filter((medication) =>
+        userDetails.pregnantOrBreastFeed
+          ? !medication.alergies.find((medicationAlergy) =>
+              alergiesByName.includes(medicationAlergy.name),
+            ) &&
+            medication.canBeUsedWhilePregnantOrBreastFeed &&
+            medication
+          : !medication.alergies.find((medicationAlergy) =>
               alergiesByName.includes(medicationAlergy.name),
             ) && medication,
-        ),
-      );
-      return sortedMedications.filter(
-        (medication) =>
-          !medication.alergies.find((medicationAlergy) =>
-            alergiesByName.includes(medicationAlergy.name),
-          ) && medication,
       );
     } else {
       const medications = await this.medicationRepository.find();
-      return medications.filter(
-        (medication) =>
-          !medication.alergies.find((medicationAlergy) =>
-            alergiesByName.includes(medicationAlergy.name),
-          ) && medication,
+      return medications.filter((medication) =>
+        userDetails.pregnantOrBreastFeed
+          ? !medication.alergies.find((medicationAlergy) =>
+              alergiesByName.includes(medicationAlergy.name),
+            ) &&
+            medication.canBeUsedWhilePregnantOrBreastFeed &&
+            medication
+          : !medication.alergies.find((medicationAlergy) =>
+              alergiesByName.includes(medicationAlergy.name),
+            ) && medication,
       );
     }
   }

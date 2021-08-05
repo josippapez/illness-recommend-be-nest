@@ -16,6 +16,8 @@ export class Medication {
   public name: string;
   @Column()
   public description: string;
+  @Column()
+  public canBeUsedWhilePregnantOrBreastFeed: boolean;
   @Column('text', { array: true })
   public contraindications: string[];
   @Column('json')
