@@ -40,11 +40,11 @@ export class AuthenticationController {
       this.authenticationService.getCookieWithJwtRefreshToken(user.id);
     response.cookie('Accesstoken', accessTokenCookie, {
       expires: new Date(new Date().getTime() + 1000 * 60 * 60 * 24 * 30),
-      sameSite: 'lax',
+      sameSite: 'none',
     });
     response.cookie('Refreshtoken', refreshTokenCookie, {
       expires: new Date(new Date().getTime() + 1000 * 60 * 60 * 24 * 30),
-      sameSite: 'lax',
+      sameSite: 'none',
     });
     user.password = undefined;
     return response.send(user);
@@ -79,7 +79,7 @@ export class AuthenticationController {
 
     request.res.cookie('Accesstoken', accessTokenCookie, {
       expires: new Date(new Date().getTime() + 1000 * 60 * 60 * 24 * 30),
-      sameSite: 'lax',
+      sameSite: 'none',
     });
     return request.user;
   }
