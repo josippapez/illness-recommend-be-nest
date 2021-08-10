@@ -41,10 +41,12 @@ export class AuthenticationController {
     response.cookie('Accesstoken', accessTokenCookie, {
       expires: new Date(new Date().getTime() + 1000 * 60 * 60 * 24 * 30),
       sameSite: 'none',
+      secure: true,
     });
     response.cookie('Refreshtoken', refreshTokenCookie, {
       expires: new Date(new Date().getTime() + 1000 * 60 * 60 * 24 * 30),
       sameSite: 'none',
+      secure: true,
     });
     user.password = undefined;
     return response.send(user);
@@ -80,6 +82,7 @@ export class AuthenticationController {
     request.res.cookie('Accesstoken', accessTokenCookie, {
       expires: new Date(new Date().getTime() + 1000 * 60 * 60 * 24 * 30),
       sameSite: 'none',
+      secure: true,
     });
     return request.user;
   }
