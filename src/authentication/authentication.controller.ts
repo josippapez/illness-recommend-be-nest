@@ -40,11 +40,13 @@ export class AuthenticationController {
       this.authenticationService.getCookieWithJwtRefreshToken(user.id);
     response.cookie('Accesstoken', accessTokenCookie, {
       expires: new Date(new Date().getTime() + 1000 * 60 * 60 * 24 * 30),
+      sameSite: 'none',
       secure: true,
       domain: process.env.DOMAIN,
     });
     response.cookie('Refreshtoken', refreshTokenCookie, {
       expires: new Date(new Date().getTime() + 1000 * 60 * 60 * 24 * 30),
+      sameSite: 'none',
       secure: true,
       domain: process.env.DOMAIN,
     });
@@ -82,6 +84,7 @@ export class AuthenticationController {
     request.res.cookie('Accesstoken', accessTokenCookie, {
       expires: new Date(new Date().getTime() + 1000 * 60 * 60 * 24 * 30),
       domain: process.env.DOMAIN,
+      sameSite: 'none',
       secure: true,
     });
     return request.user;
