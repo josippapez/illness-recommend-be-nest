@@ -1,6 +1,6 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Not, Repository } from 'typeorm';
+import { Brackets, getConnection, Not, Repository } from 'typeorm';
 import User from './entities/user.entity';
 import CreateUserDto from './dto/createUser.dto';
 import * as Joi from '@hapi/joi';
@@ -24,6 +24,8 @@ export class UsersService {
         id: Not(userId),
         role: Not('admin'),
       },
+      order: { name: 'ASC' },
+      select: ['email', 'id', 'name', 'role'],
     });
     if (users) {
       return users;
@@ -32,6 +34,30 @@ export class UsersService {
       'Ne postoje uneseni korisnici',
       HttpStatus.NOT_FOUND,
     );
+  }
+
+  async getByText(userId: number, search: string) {
+    const users = getConnection()
+      .createQueryBuilder()
+      .select(['user.id', 'user.name', 'user.email', 'user.role'])
+      .from(User, 'user')
+      .where('user.id != :userId', { userId })
+      .andWhere('user.role != :role', { role: 'admin' })
+      .andWhere(
+        new Brackets((qb) => {
+          qb.where('LOWER(user.name) like (:name)', {
+            name: `%${search}%`,
+          }).orWhere('LOWER(user.email) like LOWER(:email)', {
+            email: `%${search}%`,
+          });
+        }),
+      )
+      .orderBy('user.name', 'ASC')
+      .getMany();
+    if (users) {
+      return users;
+    }
+    throw new HttpException('Nema pronađenih korisnika', HttpStatus.NOT_FOUND);
   }
 
   async getByEmail(email: string) {

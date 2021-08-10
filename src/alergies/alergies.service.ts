@@ -47,7 +47,9 @@ export class AlergiesService {
   }
 
   findAll() {
-    return this.alergyRepository.find();
+    return this.alergyRepository.find({
+      order: { name: 'ASC' },
+    });
   }
 
   findOne(id: number) {

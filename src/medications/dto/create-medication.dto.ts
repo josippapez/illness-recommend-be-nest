@@ -6,7 +6,9 @@ export class CreateMedicationDto {
   description: string;
   canBeUsedWhilePregnantOrBreastFeed: boolean;
   contraindications: string[];
+  interactions: string[];
   sideEffects: JSON;
+  dosage: JSON;
   symptoms: Symptom[];
   alergies: { name: string }[];
 }

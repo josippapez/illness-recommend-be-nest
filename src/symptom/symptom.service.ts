@@ -17,7 +17,9 @@ export class SymptomService {
   }
 
   findAll() {
-    return this.symptomRepository.find();
+    return this.symptomRepository.find({
+      order: { name: 'ASC' },
+    });
   }
 
   findOne(id: number) {

@@ -20,8 +20,12 @@ export class Medication {
   public canBeUsedWhilePregnantOrBreastFeed: boolean;
   @Column('text', { array: true })
   public contraindications: string[];
+  @Column('text', { array: true })
+  public interactions: string[];
   @Column('json')
   public sideEffects: JSON;
+  @Column('json')
+  public dosage: JSON;
   @ManyToMany(() => Symptom, (symptom) => symptom.medications, {
     cascade: true,
     eager: true,

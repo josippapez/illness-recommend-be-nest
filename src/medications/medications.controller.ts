@@ -8,10 +8,10 @@ import {
   Delete,
   UseGuards,
   Req,
+  Query,
 } from '@nestjs/common';
 import { MedicationsService } from './medications.service';
 import { CreateMedicationDto } from './dto/create-medication.dto';
-import JwtRefreshGuard from 'src/authentication/jwt-refresh.guard';
 import { Roles } from 'src/authentication/Roles.decorator';
 import { RolesGuard } from 'src/authentication/Roles.Guard';
 import { Symptom } from 'src/symptom/entities/symptom.entity';
@@ -23,7 +23,7 @@ import RequestWithUser from 'src/authentication/requestWithUser.interface';
 export class MedicationsController {
   constructor(private readonly medicationsService: MedicationsService) {}
 
-  @UseGuards(JwtAuthenticationGuard)
+  /* @UseGuards(JwtAuthenticationGuard) */
   @Post()
   create(@Body() createMedicationDto: CreateMedicationDto) {
     return this.medicationsService.create(createMedicationDto);
@@ -33,6 +33,13 @@ export class MedicationsController {
   @Get()
   findAll() {
     return this.medicationsService.findAll();
+  }
+
+  @Get('/search')
+  @UseGuards(JwtAuthenticationGuard)
+  @Roles('admin')
+  getByText(@Query('search') search) {
+    return this.medicationsService.getByText(search);
   }
 
   @UseGuards(JwtAuthenticationGuard)

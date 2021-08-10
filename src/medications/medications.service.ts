@@ -1,6 +1,6 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { getManager, In, Repository } from 'typeorm';
+import { getConnection, getManager, In, Repository } from 'typeorm';
 import { CreateMedicationDto } from './dto/create-medication.dto';
 import { Medication } from './entities/medication.entity';
 import * as Joi from '@hapi/joi';
@@ -24,9 +24,11 @@ export class MedicationsService {
     description: Joi.string().not(null).required(),
     canBeUsedWhilePregnantOrBreastFeed: Joi.boolean().not(null),
     contraindications: Joi.array().required(),
+    interactions: Joi.array().required(),
     sideEffects: Joi.object().required(),
     symptoms: Joi.array().required(),
     alergies: Joi.array(),
+    dosage: Joi.object().required(),
   }).messages({
     'string.base': `Vrijednost nije pravilnog formata`,
     'string.empty': `Polje je obavezno`,
@@ -81,7 +83,9 @@ export class MedicationsService {
   }
 
   async findAll() {
-    const medications = await this.medicationRepository.find();
+    const medications = await this.medicationRepository.find({
+      order: { name: 'ASC' },
+    });
     if (medications) {
       return medications;
     }
@@ -89,6 +93,25 @@ export class MedicationsService {
       'Ne postoje uneseni lijekovi',
       HttpStatus.NOT_FOUND,
     );
+  }
+
+  async getByText(search: string) {
+    const medications = getConnection()
+      .createQueryBuilder()
+      .select('medication')
+      .from(Medication, 'medication')
+      .where('LOWER(medication.description) like (:description)', {
+        description: `%${search}%`,
+      })
+      .orWhere('LOWER(medication.name) like LOWER(:name)', {
+        name: `%${search}%`,
+      })
+      .orderBy('medication.name', 'ASC')
+      .getMany();
+    if (medications) {
+      return medications;
+    }
+    throw new HttpException('Nema pronađenih lijekova', HttpStatus.NOT_FOUND);
   }
 
   async findBySymptoms(symptoms: Symptom[], userId: number) {
@@ -173,7 +196,6 @@ export class MedicationsService {
     const updatedMedication = await this.medicationRepository.save(
       createMedicationDto,
     );
-
     if (updatedMedication) {
       this.removeUnusedAlergies();
       this.removeUnusedSymptoms();
