@@ -23,7 +23,7 @@ import RequestWithUser from 'src/authentication/requestWithUser.interface';
 export class MedicationsController {
   constructor(private readonly medicationsService: MedicationsService) {}
 
-  /* @UseGuards(JwtAuthenticationGuard) */
+  @UseGuards(JwtAuthenticationGuard)
   @Post()
   create(@Body() createMedicationDto: CreateMedicationDto) {
     return this.medicationsService.create(createMedicationDto);
