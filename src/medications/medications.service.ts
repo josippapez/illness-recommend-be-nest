@@ -6,7 +6,7 @@ import { Medication } from './entities/medication.entity';
 import * as Joi from '@hapi/joi';
 import { Alergy } from 'src/alergies/entities/alergy.entity';
 import { Symptom } from 'src/symptom/entities/symptom.entity';
-import { UsersDetail } from 'src/users-details/entities/users-detail.entity';
+import { PatientDetail } from 'src/patients-details/entities/patient-detail.entity';
 
 @Injectable()
 export class MedicationsService {
@@ -115,12 +115,14 @@ export class MedicationsService {
   }
 
   async findBySymptoms(symptoms: Symptom[], userId: number) {
-    const userDetails = await getManager()
-      .getRepository(UsersDetail)
+    const patientDetails = await getManager()
+      .getRepository(PatientDetail)
       .findOne(userId, { relations: ['alergies'] });
 
     const alergiesByName = [
-      ...userDetails.alergies.map((userDetailAlergy) => userDetailAlergy.name),
+      ...patientDetails.alergies.map(
+        (patientDetailAlergy) => patientDetailAlergy.name,
+      ),
     ];
     if (symptoms && symptoms.length) {
       const symptomsFound = await this.symptomRepository.findByIds(
@@ -155,7 +157,7 @@ export class MedicationsService {
       );
 
       return sortedMedications.filter((medication) =>
-        userDetails.pregnantOrBreastFeed
+        patientDetails.pregnantOrBreastFeed
           ? !medication.alergies.find((medicationAlergy) =>
               alergiesByName.includes(medicationAlergy.name),
             ) &&
@@ -168,7 +170,7 @@ export class MedicationsService {
     } else {
       const medications = await this.medicationRepository.find();
       return medications.filter((medication) =>
-        userDetails.pregnantOrBreastFeed
+        patientDetails.pregnantOrBreastFeed
           ? !medication.alergies.find((medicationAlergy) =>
               alergiesByName.includes(medicationAlergy.name),
             ) &&

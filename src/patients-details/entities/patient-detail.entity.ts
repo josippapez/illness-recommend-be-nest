@@ -1,28 +1,23 @@
 import { Min } from 'class-validator';
 import { Alergy } from 'src/alergies/entities/alergy.entity';
-import User from 'src/users/entities/user.entity';
 import {
   Column,
   Entity,
-  JoinColumn,
   JoinTable,
   ManyToMany,
-  OneToMany,
-  OneToOne,
-  PrimaryColumn,
+  PrimaryGeneratedColumn,
 } from 'typeorm';
 
 @Entity()
-export class UsersDetail {
-  @PrimaryColumn({ nullable: false })
+export class PatientDetail {
+  @PrimaryGeneratedColumn()
   public id: number;
 
-  @OneToOne(() => User, (user) => user.id, {
-    primary: true,
-    onDelete: 'CASCADE',
-  })
-  @JoinColumn({ name: 'id' })
-  public userId: number;
+  @Column()
+  public oib: number;
+
+  @Column()
+  public name: string;
 
   @Column()
   @Min(0)
@@ -35,14 +30,20 @@ export class UsersDetail {
   @Column()
   public pregnantOrBreastFeed: boolean;
 
+  @Column('text', { array: true, nullable: true, default: [] })
+  public symptomsSelected: string[];
+
+  @Column('json', { nullable: true, default: [] })
+  public medicationsSelected: JSON[];
+
   @ManyToMany(() => Alergy, (alergy) => alergy.id, {
     eager: false,
     onDelete: 'CASCADE',
   })
   @JoinTable({
-    name: 'users_detail_alergies_alergy',
+    name: 'patient_detail_alergies_alergy',
     joinColumn: {
-      name: 'usersDetailId',
+      name: 'patientDetailId',
       referencedColumnName: 'id',
     },
     inverseJoinColumn: {

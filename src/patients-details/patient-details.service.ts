@@ -1,19 +1,20 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { CreateUsersDetailDto } from './dto/create-users-detail.dto';
-import { UsersDetail } from './entities/users-detail.entity';
+import { CreatePatientsDetailDto } from './dto/create-patient-detail.dto';
+import { PatientDetail } from './entities/patient-detail.entity';
 import * as Joi from '@hapi/joi';
 
 @Injectable()
-export class UsersDetailsService {
+export class PatientDetailsService {
   constructor(
-    @InjectRepository(UsersDetail)
-    private userDetailsRepository: Repository<UsersDetail>,
+    @InjectRepository(PatientDetail)
+    private patientDetailsRepository: Repository<PatientDetail>,
   ) {}
 
   serializer = Joi.object({
-    id: Joi.not(null).required(),
+    oib: Joi.number(),
+    name: Joi.string(),
     alergies: Joi.array(),
     age: Joi.not(null).required(),
     weight: Joi.not(null).required(),
@@ -23,8 +24,8 @@ export class UsersDetailsService {
     'any.invalid': 'Polje je obavezno',
   });
 
-  async create(createUsersDetailDto: CreateUsersDetailDto) {
-    const result = this.serializer.validate(createUsersDetailDto, {
+  async create(createPatientDetailDto: CreatePatientsDetailDto) {
+    const result = this.serializer.validate(createPatientDetailDto, {
       abortEarly: false,
     });
 
@@ -37,12 +38,12 @@ export class UsersDetailsService {
       throw new HttpException(arrayOfErrors, HttpStatus.BAD_REQUEST);
     }
     try {
-      const newUserDetail = await this.userDetailsRepository.save(
-        createUsersDetailDto,
+      const newPatientDetail = await this.patientDetailsRepository.save(
+        createPatientDetailDto,
       );
-      if (newUserDetail) {
+      if (newPatientDetail) {
         return {
-          ...newUserDetail,
+          ...newPatientDetail,
           successMessage: 'Podaci uspješno spremljeni',
         };
       }
@@ -55,26 +56,26 @@ export class UsersDetailsService {
   }
 
   findAll() {
-    return this.userDetailsRepository.find();
+    return this.patientDetailsRepository.find();
   }
 
   async findOne(id: number) {
-    return await this.userDetailsRepository.findOne(id, {
+    return await this.patientDetailsRepository.findOne(id, {
       relations: ['alergies'],
     });
   }
 
-  async update(createUsersDetailDto: CreateUsersDetailDto) {
-    const newUserDetail = await this.userDetailsRepository.save(
-      createUsersDetailDto,
+  async update(createPatientDetailDto: CreatePatientsDetailDto) {
+    const newPatientDetail = await this.patientDetailsRepository.save(
+      createPatientDetailDto,
     );
 
-    if (newUserDetail) {
+    if (newPatientDetail) {
       return { successMessage: 'Promjene uspješno spremljene' };
     }
   }
 
   remove(id: number) {
-    return `This action removes a #${id} usersDetail`;
+    return `This action removes a #${id} patientDetail`;
   }
 }

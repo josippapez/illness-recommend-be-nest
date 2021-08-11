@@ -5,7 +5,7 @@ import { AuthenticationModule } from './authentication/authentication.module';
 import { DatabaseModule } from './database/database.module';
 import { UsersModule } from './users/users.module';
 import { MedicationsModule } from './medications/medications.module';
-import { UsersDetailsModule } from './users-details/users-details.module';
+import { PatientDetailsModule } from './patients-details/patient-details.module';
 import { AlergiesModule } from './alergies/alergies.module';
 import { SymptomModule } from './symptom/symptom.module';
 
@@ -29,7 +29,7 @@ import { SymptomModule } from './symptom/symptom.module';
     AuthenticationModule,
     UsersModule,
     MedicationsModule,
-    UsersDetailsModule,
+    PatientDetailsModule,
     AlergiesModule,
     SymptomModule,
   ],
