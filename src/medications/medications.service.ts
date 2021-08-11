@@ -117,7 +117,7 @@ export class MedicationsService {
   async findBySymptoms(symptoms: Symptom[], userId: number) {
     const patientDetails = await getManager()
       .getRepository(PatientDetail)
-      .findOne(userId, { relations: ['alergies'] });
+      .findOne({ id: userId });
 
     const alergiesByName = [
       ...patientDetails.alergies.map(

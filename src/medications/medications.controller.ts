@@ -44,8 +44,8 @@ export class MedicationsController {
 
   @UseGuards(JwtAuthenticationGuard)
   @Post('/find-by-symptoms')
-  findBySymptoms(@Body() symptoms: Symptom[], @Req() user: RequestWithUser) {
-    return this.medicationsService.findBySymptoms(symptoms, user.user.id);
+  findBySymptoms(@Body() data: { symptoms: Symptom[]; userId: number }) {
+    return this.medicationsService.findBySymptoms(data.symptoms, data.userId);
   }
 
   @UseGuards(JwtAuthenticationGuard)

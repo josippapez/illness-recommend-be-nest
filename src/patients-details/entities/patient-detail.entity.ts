@@ -22,6 +22,9 @@ export class PatientDetail {
   @JoinColumn({ name: 'userId' })
   public userId: number;
 
+  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
+  public created: string;
+
   @Column()
   public oib: string;
 
@@ -39,8 +42,8 @@ export class PatientDetail {
   @Column()
   public pregnantOrBreastFeed: boolean;
 
-  @Column('text', { array: true, nullable: true, default: [] })
-  public symptomsSelected: string[];
+  @Column('json', { nullable: true, default: [] })
+  public symptomsSelected: JSON[];
 
   @Column('json', { nullable: true, default: [] })
   public medicationsSelected: JSON[];
