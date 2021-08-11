@@ -1,6 +1,6 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Brackets, getConnection, Repository } from 'typeorm';
 import { CreatePatientsDetailDto } from './dto/create-patient-detail.dto';
 import { PatientDetail } from './entities/patient-detail.entity';
 import * as Joi from '@hapi/joi';
@@ -13,12 +13,20 @@ export class PatientDetailsService {
   ) {}
 
   serializer = Joi.object({
+    userId: Joi.number().required(),
     oib: Joi.number(),
     name: Joi.string(),
     alergies: Joi.array(),
     age: Joi.not(null).required(),
     weight: Joi.not(null).required(),
     pregnantOrBreastFeed: Joi.boolean().required(),
+  }).messages({
+    'any.required': `Polje je obavezno`,
+    'any.invalid': 'Polje je obavezno',
+  });
+
+  removeSerializer = Joi.object({
+    id: Joi.not(null).required(),
   }).messages({
     'any.required': `Polje je obavezno`,
     'any.invalid': 'Polje je obavezno',
@@ -55,8 +63,35 @@ export class PatientDetailsService {
     }
   }
 
-  findAll() {
-    return this.patientDetailsRepository.find();
+  async findAll() {
+    return await this.patientDetailsRepository.find();
+  }
+
+  async findAllByUserId(userId: number) {
+    return await this.patientDetailsRepository.find({ where: { userId } });
+  }
+
+  async getByText(search: string, userId: number) {
+    const patients = getConnection()
+      .createQueryBuilder()
+      .select('patient')
+      .from(PatientDetail, 'patient')
+      .where('patient.userId = :userId', { userId })
+      .andWhere(
+        new Brackets((qb) => {
+          qb.where('LOWER(patient.name) like LOWER(:name)', {
+            name: `%${search}%`,
+          }).orWhere('patient.oib like :oib', {
+            oib: `%${search}%`,
+          });
+        }),
+      )
+      .orderBy('patient.name', 'ASC')
+      .getMany();
+    if (patients) {
+      return patients;
+    }
+    throw new HttpException('Nema pronađenih pacijenata', HttpStatus.NOT_FOUND);
   }
 
   async findOne(id: number) {
@@ -75,7 +110,23 @@ export class PatientDetailsService {
     }
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} patientDetail`;
+  async remove(id: number) {
+    const result = this.removeSerializer.validate(id, {
+      abortEarly: false,
+    });
+
+    if (result.error) {
+      const arrayOfErrors = [
+        ...result.error.details.map((error) => {
+          return { message: error.message, field: error.path[0] };
+        }),
+      ];
+      throw new HttpException(arrayOfErrors, HttpStatus.BAD_REQUEST);
+    }
+
+    const response = await this.patientDetailsRepository.delete(id);
+    if (response) {
+      return { successMessage: 'Unos uspješno obrisan' };
+    }
   }
 }

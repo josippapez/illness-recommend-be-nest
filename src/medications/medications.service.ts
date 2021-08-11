@@ -100,7 +100,7 @@ export class MedicationsService {
       .createQueryBuilder()
       .select('medication')
       .from(Medication, 'medication')
-      .where('LOWER(medication.description) like (:description)', {
+      .where('LOWER(medication.description) like LOWER(:description)', {
         description: `%${search}%`,
       })
       .orWhere('LOWER(medication.name) like LOWER(:name)', {

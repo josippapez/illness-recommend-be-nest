@@ -7,12 +7,15 @@ import {
   Param,
   Delete,
   UseGuards,
+  Req,
+  Query,
 } from '@nestjs/common';
 import { PatientDetailsService } from './patient-details.service';
 import { CreatePatientsDetailDto } from './dto/create-patient-detail.dto';
 import { RolesGuard } from 'src/authentication/Roles.Guard';
 import { Roles } from 'src/authentication/Roles.decorator';
 import JwtAuthenticationGuard from 'src/authentication/jwt-authentication.guard';
+import RequestWithUser from 'src/authentication/requestWithUser.interface';
 
 @Controller('patients-details')
 @UseGuards(RolesGuard)
@@ -30,6 +33,19 @@ export class PatientsDetailsController {
   @Roles('admin')
   findAll() {
     return this.patientsDetailsService.findAll();
+  }
+
+  @UseGuards(JwtAuthenticationGuard)
+  @Get('/forUser')
+  @Roles('user')
+  findAllByUserId(@Req() request: RequestWithUser) {
+    return this.patientsDetailsService.findAllByUserId(request.user.id);
+  }
+
+  @Get('/search')
+  @UseGuards(JwtAuthenticationGuard)
+  getByText(@Req() request: RequestWithUser, @Query('search') search) {
+    return this.patientsDetailsService.getByText(search, request.user.id);
   }
 
   @UseGuards(JwtAuthenticationGuard)
@@ -55,8 +71,12 @@ export class PatientsDetailsController {
   }
 
   @UseGuards(JwtAuthenticationGuard)
-  @Delete(':id')
-  remove(@Param('id') id: number) {
+  @Delete('/delete')
+  @Roles('admin')
+  remove(
+    @Body()
+    id: number,
+  ) {
     return this.patientsDetailsService.remove(id);
   }
 }

@@ -24,7 +24,7 @@ export class Medication {
   public interactions: string[];
   @Column('json')
   public sideEffects: JSON;
-  @Column('json')
+  @Column('json', { default: { byAge: [], byWeight: [] } })
   public dosage: JSON;
   @ManyToMany(() => Symptom, (symptom) => symptom.medications, {
     cascade: true,

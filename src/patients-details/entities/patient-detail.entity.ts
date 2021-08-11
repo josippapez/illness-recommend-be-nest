@@ -1,20 +1,29 @@
 import { Min } from 'class-validator';
 import { Alergy } from 'src/alergies/entities/alergy.entity';
+import User from 'src/users/entities/user.entity';
 import {
   Column,
   Entity,
+  JoinColumn,
   JoinTable,
   ManyToMany,
+  ManyToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 
 @Entity()
 export class PatientDetail {
   @PrimaryGeneratedColumn()
-  public id: number;
+  public id?: number;
+
+  @ManyToOne(() => User, (user) => user.id, {
+    onDelete: 'SET NULL',
+  })
+  @JoinColumn({ name: 'userId' })
+  public userId: number;
 
   @Column()
-  public oib: number;
+  public oib: string;
 
   @Column()
   public name: string;
@@ -37,7 +46,7 @@ export class PatientDetail {
   public medicationsSelected: JSON[];
 
   @ManyToMany(() => Alergy, (alergy) => alergy.id, {
-    eager: false,
+    eager: true,
     onDelete: 'CASCADE',
   })
   @JoinTable({

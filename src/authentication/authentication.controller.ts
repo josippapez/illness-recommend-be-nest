@@ -34,24 +34,10 @@ export class AuthenticationController {
   @Post('log-in')
   async logIn(@Req() request: RequestWithUser, @Res() response: Response) {
     const { user } = request;
-    const accessTokenCookie =
-      this.authenticationService.getCookieWithJwtAccessToken(user.id);
-    const refreshTokenCookie =
-      this.authenticationService.getCookieWithJwtRefreshToken(user.id);
-    response.cookie('Accesstoken', accessTokenCookie, {
-      expires: new Date(new Date().getTime() + 1000 * 60 * 60 * 24 * 30),
-      sameSite: 'none',
-      secure: true,
-      domain: process.env.DOMAIN,
-    });
-    response.cookie('Refreshtoken', refreshTokenCookie, {
-      expires: new Date(new Date().getTime() + 1000 * 60 * 60 * 24 * 30),
-      sameSite: 'none',
-      secure: true,
-      domain: process.env.DOMAIN,
-    });
+    const accessToken = this.authenticationService.getJwtAccessToken(user.id);
+    const refreshToken = this.authenticationService.getJwtRefreshToken(user.id);
     user.password = undefined;
-    return response.send(user);
+    return response.send({ user, accessToken, refreshToken });
   }
 
   @UseGuards(JwtAuthenticationGuard)
@@ -78,15 +64,9 @@ export class AuthenticationController {
   @UseGuards(JwtRefreshGuard)
   @Get('refresh')
   refresh(@Req() request: RequestWithUser) {
-    const accessTokenCookie =
-      this.authenticationService.getCookieWithJwtAccessToken(request.user.id);
-
-    request.res.cookie('Accesstoken', accessTokenCookie, {
-      expires: new Date(new Date().getTime() + 1000 * 60 * 60 * 24 * 30),
-      domain: process.env.DOMAIN,
-      sameSite: 'none',
-      secure: true,
-    });
-    return request.user;
+    const accessToken = this.authenticationService.getJwtAccessToken(
+      request.user.id,
+    );
+    return accessToken;
   }
 }

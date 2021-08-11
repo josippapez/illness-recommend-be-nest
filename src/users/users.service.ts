@@ -4,6 +4,7 @@ import { Brackets, getConnection, Not, Repository } from 'typeorm';
 import User from './entities/user.entity';
 import CreateUserDto from './dto/createUser.dto';
 import * as Joi from '@hapi/joi';
+import { UpdateUserDto } from './dto/updateUser.dto';
 @Injectable()
 export class UsersService {
   constructor(
@@ -45,7 +46,7 @@ export class UsersService {
       .andWhere('user.role != :role', { role: 'admin' })
       .andWhere(
         new Brackets((qb) => {
-          qb.where('LOWER(user.name) like (:name)', {
+          qb.where('LOWER(user.name) like LOWER(:name)', {
             name: `%${search}%`,
           }).orWhere('LOWER(user.email) like LOWER(:email)', {
             email: `%${search}%`,
@@ -72,7 +73,10 @@ export class UsersService {
   }
 
   async getById(id: number) {
-    const user = await this.usersRepository.findOne({ id });
+    const user = await this.usersRepository.findOne(
+      { id },
+      { select: ['id', 'email', 'name', 'role'] },
+    );
     if (user) {
       return user;
     }
@@ -86,6 +90,13 @@ export class UsersService {
     const newUser = this.usersRepository.create(userData);
     await this.usersRepository.save(newUser);
     return newUser;
+  }
+
+  async update(updateUserDto: UpdateUserDto) {
+    const updatedUser = await this.usersRepository.save(updateUserDto);
+    if (updatedUser) {
+      return { successMessage: 'Promjene uspješno spremljene' };
+    }
   }
 
   async delete(id: number) {
