@@ -22,7 +22,7 @@ export class RolesGuard implements CanActivate {
       return true;
     }
     const userId: string | { [key: string]: any } = jwt.decode(
-      context.getArgByIndex(0).cookies.Refreshtoken,
+      context.getArgByIndex(0).headers.authorization.replace('Bearer ', ''),
     );
     if (userId) {
       const user = await this.usersService.getById(userId['userId']);

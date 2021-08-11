@@ -18,17 +18,15 @@ export class JwtAccessTokenStrategy extends PassportStrategy(
     private readonly jwtService: JwtService,
   ) {
     super({
-      jwtFromRequest: ExtractJwt.fromExtractors([
-        (request: Request) => {
-          return request?.cookies?.Accesstoken;
-        },
-      ]),
+      jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       secretOrKey: configService.get('JWT_ACCESS_TOKEN_SECRET'),
       passReqToCallback: true,
     });
   }
 
   async validate(request: Request, payload: TokenPayload) {
+    console.log(payload);
+
     return this.userService.getById(payload.userId);
   }
 }
