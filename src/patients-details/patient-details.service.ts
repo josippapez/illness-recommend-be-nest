@@ -14,13 +14,16 @@ export class PatientDetailsService {
 
   serializer = Joi.object({
     userId: Joi.number().required(),
-    oib: Joi.number(),
-    name: Joi.string(),
+    oib: Joi.number().not(null).required(),
+    name: Joi.string().not(null).required(),
     alergies: Joi.array(),
-    age: Joi.not(null).required(),
-    weight: Joi.not(null).required(),
+    age: Joi.number().not(null).required(),
+    weight: Joi.number().not(null).required(),
     pregnantOrBreastFeed: Joi.boolean().required(),
   }).messages({
+    'number.base': 'Vrijednost mora biti broj',
+    'string.base': `Vrijednost nije pravilnog formata`,
+    'string.empty': `Polje je obavezno`,
     'any.required': `Polje je obavezno`,
     'any.invalid': 'Polje je obavezno',
   });
