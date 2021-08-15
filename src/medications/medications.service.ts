@@ -152,6 +152,7 @@ export class MedicationsService {
       const medications = await this.medicationRepository.find({
         where: { name: In(sorted) },
       });
+
       const sortedMedications = sorted.map((medication) =>
         medications.find((med) => med.name === medication),
       );
