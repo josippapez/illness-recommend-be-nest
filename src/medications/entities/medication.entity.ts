@@ -1,5 +1,3 @@
-import { Alergy } from 'src/alergies/entities/alergy.entity';
-import { Symptom } from 'src/symptom/entities/symptom.entity';
 import {
   Column,
   Entity,
@@ -7,6 +5,8 @@ import {
   ManyToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
+import { Alergy } from '../../alergies/entities/alergy.entity';
+import { Symptom } from '../../symptom/entities/symptom.entity';
 
 @Entity()
 export class Medication {

@@ -7,16 +7,14 @@ import {
   Param,
   Delete,
   UseGuards,
-  Req,
   Query,
 } from '@nestjs/common';
 import { MedicationsService } from './medications.service';
 import { CreateMedicationDto } from './dto/create-medication.dto';
-import { Roles } from 'src/authentication/Roles.decorator';
-import { RolesGuard } from 'src/authentication/Roles.Guard';
-import { Symptom } from 'src/symptom/entities/symptom.entity';
-import JwtAuthenticationGuard from 'src/authentication/jwt-authentication.guard';
-import RequestWithUser from 'src/authentication/requestWithUser.interface';
+import { Roles } from '../authentication/Roles.decorator';
+import { RolesGuard } from '../authentication/Roles.Guard';
+import { Symptom } from '../symptom/entities/symptom.entity';
+import JwtAuthenticationGuard from '../authentication/jwt-authentication.guard';
 
 @Controller('medications')
 @UseGuards(RolesGuard)

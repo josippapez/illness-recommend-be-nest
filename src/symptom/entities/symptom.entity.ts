@@ -1,5 +1,5 @@
-import { Medication } from 'src/medications/entities/medication.entity';
 import { Column, Entity, ManyToMany, PrimaryGeneratedColumn } from 'typeorm';
+import { Medication } from '../../medications/entities/medication.entity';
 
 @Entity()
 export class Symptom {

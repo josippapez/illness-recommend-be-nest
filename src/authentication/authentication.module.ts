@@ -1,3 +1,4 @@
+/* istanbul ignore file */
 import { Module } from '@nestjs/common';
 import { AuthenticationService } from './authentication.service';
 import { UsersModule } from '../users/users.module';
@@ -7,7 +8,7 @@ import { LocalStrategy } from './local.strategy';
 import { JwtModule } from '@nestjs/jwt';
 import { JwtRefreshTokenStrategy } from './jwt-refresh-token.strategy';
 import { ConfigModule } from '@nestjs/config';
-import { JwtStrategy } from './jwt.strategy';
+
 import { JwtAccessTokenStrategy } from './jwt-access-token.strategy';
 
 @Module({
@@ -15,7 +16,6 @@ import { JwtAccessTokenStrategy } from './jwt-access-token.strategy';
   providers: [
     AuthenticationService,
     LocalStrategy,
-    JwtStrategy,
     JwtRefreshTokenStrategy,
     JwtAccessTokenStrategy,
   ],

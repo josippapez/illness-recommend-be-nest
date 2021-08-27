@@ -17,12 +17,13 @@ export class AuthenticationService {
   ) {}
 
   serializer = Joi.object({
-    email: Joi.string().required(),
+    email: Joi.string().email().required(),
     password: Joi.string().required(),
     name: Joi.string().not(null).required(),
   }).messages({
     'string.base': `Vrijednost nije pravilnog formata`,
     'string.empty': `Polje je obavezno`,
+    'string.email': 'Email nije ispravnog formata',
     'any.required': `Polje je obavezno`,
     'any.invalid': 'Polje je obavezno',
   });
@@ -83,10 +84,6 @@ export class AuthenticationService {
       )}s`,
     });
     return token;
-  }
-
-  public getCookieForLogOut() {
-    return null;
   }
 
   public async getAuthenticatedUser(email: string, plainTextPassword: string) {

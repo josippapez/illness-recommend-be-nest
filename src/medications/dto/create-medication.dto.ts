@@ -1,4 +1,4 @@
-import { Symptom } from 'src/symptom/entities/symptom.entity';
+import { Symptom } from '../../symptom/entities/symptom.entity';
 
 export class CreateMedicationDto {
   id: number;

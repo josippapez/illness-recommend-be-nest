@@ -13,7 +13,6 @@ import { AuthenticationService } from './authentication.service';
 import RegisterDto from './dto/register.dto';
 import RequestWithUser from './requestWithUser.interface';
 import { LocalAuthenticationGuard } from './localAuthentication.guard';
-import JwtAuthenticationGuard from './jwt-authentication.guard';
 import JwtRefreshGuard from './jwt-refresh.guard';
 
 @Controller('authentication')
@@ -34,27 +33,6 @@ export class AuthenticationController {
     const refreshToken = this.authenticationService.getJwtRefreshToken(user.id);
     user.password = undefined;
     return response.send({ user, accessToken, refreshToken });
-  }
-
-  @UseGuards(JwtAuthenticationGuard)
-  @Post('log-out')
-  async logOut(@Res() response: Response) {
-    const cookie = this.authenticationService.getCookieForLogOut();
-    response.cookie('Accesstoken', cookie, {
-      path: '/',
-    });
-    response.cookie('Refreshtoken', cookie, {
-      path: '/',
-    });
-    return response.sendStatus(200);
-  }
-
-  @UseGuards(JwtAuthenticationGuard)
-  @Get()
-  authenticate(@Req() request: RequestWithUser) {
-    const user = request.user;
-    user.password = undefined;
-    return user;
   }
 
   @UseGuards(JwtRefreshGuard)

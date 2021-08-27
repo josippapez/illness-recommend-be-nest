@@ -12,10 +12,11 @@ import {
 } from '@nestjs/common';
 import { PatientDetailsService } from './patient-details.service';
 import { CreatePatientsDetailDto } from './dto/create-patient-detail.dto';
-import { RolesGuard } from 'src/authentication/Roles.Guard';
-import { Roles } from 'src/authentication/Roles.decorator';
-import JwtAuthenticationGuard from 'src/authentication/jwt-authentication.guard';
-import RequestWithUser from 'src/authentication/requestWithUser.interface';
+import { RolesGuard } from '../authentication/Roles.Guard';
+import { Roles } from '../authentication/Roles.decorator';
+import JwtAuthenticationGuard from '../authentication/jwt-authentication.guard';
+import RequestWithUser from '../authentication/requestWithUser.interface';
+import { UpdatePatientsDetailDto } from './dto/update-patient-detail.dto';
 
 @Controller('patients-details')
 @UseGuards(RolesGuard)
@@ -45,7 +46,7 @@ export class PatientsDetailsController {
   @Get('/search')
   @UseGuards(JwtAuthenticationGuard)
   getByText(@Req() request: RequestWithUser, @Query('search') search) {
-    return this.patientsDetailsService.getByText(search, request.user.id);
+    return this.patientsDetailsService.getByText(search, request.user);
   }
 
   @UseGuards(JwtAuthenticationGuard)
@@ -60,9 +61,9 @@ export class PatientsDetailsController {
 
   @UseGuards(JwtAuthenticationGuard)
   @Patch()
-  async update(@Body() createPatientsDetailDto: CreatePatientsDetailDto) {
+  async update(@Body() updatePatientsDetailDto: UpdatePatientsDetailDto) {
     const patientDetail = this.patientsDetailsService.update(
-      createPatientsDetailDto,
+      updatePatientsDetailDto,
     );
     if (patientDetail) {
       return patientDetail;

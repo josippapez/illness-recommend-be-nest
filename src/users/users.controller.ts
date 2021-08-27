@@ -10,11 +10,10 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
-import { RolesGuard } from 'src/authentication/Roles.Guard';
-import { Roles } from 'src/authentication/Roles.decorator';
-import RequestWithUser from 'src/authentication/requestWithUser.interface';
-import JwtAuthenticationGuard from 'src/authentication/jwt-authentication.guard';
-import CreateUserDto from './dto/createUser.dto';
+import { RolesGuard } from '../authentication/Roles.Guard';
+import { Roles } from '../authentication/Roles.decorator';
+import RequestWithUser from '../authentication/requestWithUser.interface';
+import JwtAuthenticationGuard from '../authentication/jwt-authentication.guard';
 import { UpdateUserDto } from './dto/updateUser.dto';
 
 @Controller('users')
@@ -29,6 +28,13 @@ export class UsersController {
     return this.usersService.getAllUsers(request.user.id);
   }
 
+  @Get('/search')
+  @UseGuards(JwtAuthenticationGuard)
+  @Roles('admin')
+  getByText(@Req() request: RequestWithUser, @Query('search') search) {
+    return this.usersService.getByText(request.user.id, search);
+  }
+
   @UseGuards(JwtAuthenticationGuard)
   @Get(':id')
   findOne(@Param('id') id: number) {
@@ -37,13 +43,6 @@ export class UsersController {
       return patientDetail;
     }
     return 'null';
-  }
-
-  @Get('/search')
-  @UseGuards(JwtAuthenticationGuard)
-  @Roles('admin')
-  getByText(@Req() request: RequestWithUser, @Query('search') search) {
-    return this.usersService.getByText(request.user.id, search);
   }
 
   @UseGuards(JwtAuthenticationGuard)

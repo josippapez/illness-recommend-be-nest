@@ -1,4 +1,4 @@
-import { Alergy } from 'src/alergies/entities/alergy.entity';
+import { Alergy } from '../../alergies/entities/alergy.entity';
 
 export class CreatePatientsDetailDto {
   userId: number;

@@ -1,12 +1,13 @@
+/* istanbul ignore file */
 import { Module } from '@nestjs/common';
 import { MedicationsService } from './medications.service';
 import { MedicationsController } from './medications.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Medication } from './entities/medication.entity';
-import { Alergy } from 'src/alergies/entities/alergy.entity';
-import { Symptom } from 'src/symptom/entities/symptom.entity';
-import User from 'src/users/entities/user.entity';
-import { UsersService } from 'src/users/users.service';
+import { Alergy } from '../alergies/entities/alergy.entity';
+import { Symptom } from '../symptom/entities/symptom.entity';
+import User from '../users/entities/user.entity';
+import { UsersService } from '../users/users.service';
 
 @Module({
   imports: [

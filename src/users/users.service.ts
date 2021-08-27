@@ -19,6 +19,20 @@ export class UsersService {
     'any.invalid': 'Polje je obavezno',
   });
 
+  updateSerializer = Joi.object({
+    id: Joi.number(),
+    name: Joi.string().not(null).required(),
+    email: Joi.string().email().not(null).required(),
+    role: Joi.string().not(null).required(),
+  }).messages({
+    'number.base': 'Vrijednost mora biti broj',
+    'string.base': `Vrijednost nije pravilnog formata`,
+    'string.email': 'Email nije ispravnog formata',
+    'string.empty': `Polje je obavezno`,
+    'any.required': `Polje je obavezno`,
+    'any.invalid': 'Polje je obavezno',
+  });
+
   async getAllUsers(userId: number) {
     const users = await this.usersRepository.find({
       where: {
@@ -93,6 +107,18 @@ export class UsersService {
   }
 
   async update(updateUserDto: UpdateUserDto) {
+    const result = this.updateSerializer.validate(updateUserDto, {
+      abortEarly: false,
+    });
+
+    if (result.error) {
+      const arrayOfErrors = [
+        ...result.error.details.map((error) => {
+          return { message: error.message, field: error.path[0] };
+        }),
+      ];
+      throw new HttpException(arrayOfErrors, HttpStatus.BAD_REQUEST);
+    }
     const updatedUser = await this.usersRepository.save(updateUserDto);
     if (updatedUser) {
       return { successMessage: 'Promjene uspješno spremljene' };

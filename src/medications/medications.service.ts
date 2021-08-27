@@ -4,9 +4,9 @@ import { getConnection, getManager, In, Repository } from 'typeorm';
 import { CreateMedicationDto } from './dto/create-medication.dto';
 import { Medication } from './entities/medication.entity';
 import * as Joi from '@hapi/joi';
-import { Alergy } from 'src/alergies/entities/alergy.entity';
-import { Symptom } from 'src/symptom/entities/symptom.entity';
-import { PatientDetail } from 'src/patients-details/entities/patient-detail.entity';
+import { Alergy } from '../alergies/entities/alergy.entity';
+import { Symptom } from '../symptom/entities/symptom.entity';
+import { PatientDetail } from '../patients-details/entities/patient-detail.entity';
 
 @Injectable()
 export class MedicationsService {
@@ -30,6 +30,25 @@ export class MedicationsService {
     alergies: Joi.array(),
     dosage: Joi.object().required(),
   }).messages({
+    'string.base': `Vrijednost nije pravilnog formata`,
+    'string.empty': `Polje je obavezno`,
+    'any.required': `Polje je obavezno`,
+    'any.invalid': 'Polje je obavezno',
+  });
+
+  updateSerializer = Joi.object({
+    id: Joi.number(),
+    name: Joi.string().not(null).required(),
+    description: Joi.string().not(null).required(),
+    canBeUsedWhilePregnantOrBreastFeed: Joi.boolean().not(null),
+    contraindications: Joi.array().required(),
+    interactions: Joi.array().required(),
+    sideEffects: Joi.object().required(),
+    symptoms: Joi.array().required(),
+    alergies: Joi.array(),
+    dosage: Joi.object().required(),
+  }).messages({
+    'number.base': 'Vrijednost mora biti broj',
     'string.base': `Vrijednost nije pravilnog formata`,
     'string.empty': `Polje je obavezno`,
     'any.required': `Polje je obavezno`,
@@ -196,6 +215,19 @@ export class MedicationsService {
   }
 
   async update(createMedicationDto: CreateMedicationDto) {
+    const result = this.updateSerializer.validate(createMedicationDto, {
+      abortEarly: false,
+    });
+
+    if (result.error) {
+      const arrayOfErrors = [
+        ...result.error.details.map((error) => {
+          return { message: error.message, field: error.path[0] };
+        }),
+      ];
+      throw new HttpException(arrayOfErrors, HttpStatus.BAD_REQUEST);
+    }
+
     const updatedMedication = await this.medicationRepository.save(
       createMedicationDto,
     );

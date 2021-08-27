@@ -1,10 +1,11 @@
+/* istanbul ignore file */
 import { Module } from '@nestjs/common';
 import { PatientDetailsService } from './patient-details.service';
 import { PatientsDetailsController } from './patient-details.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { PatientDetail } from './entities/patient-detail.entity';
-import User from 'src/users/entities/user.entity';
-import { UsersService } from 'src/users/users.service';
+import User from '../users/entities/user.entity';
+import { UsersService } from '../users/users.service';
 
 @Module({
   imports: [

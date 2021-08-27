@@ -1,6 +1,4 @@
 import { Min } from 'class-validator';
-import { Alergy } from 'src/alergies/entities/alergy.entity';
-import User from 'src/users/entities/user.entity';
 import {
   Column,
   Entity,
@@ -10,6 +8,8 @@ import {
   ManyToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
+import { Alergy } from '../../alergies/entities/alergy.entity';
+import User from '../../users/entities/user.entity';
 
 @Entity()
 export class PatientDetail {
