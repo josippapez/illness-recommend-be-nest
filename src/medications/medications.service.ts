@@ -119,6 +119,8 @@ export class MedicationsService {
       .createQueryBuilder()
       .select('medication')
       .from(Medication, 'medication')
+      .leftJoinAndSelect('medication.alergies', 'alergy')
+      .leftJoinAndSelect('medication.symptoms', 'symptom')
       .where('LOWER(medication.description) like LOWER(:description)', {
         description: `%${search}%`,
       })

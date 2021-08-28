@@ -14,4 +14,5 @@ export class UpdatePatientsDetailDto extends PartialType(
   id: number;
   created: string;
   medicationsSelected: [];
+  symptomsSelected: [];
 }

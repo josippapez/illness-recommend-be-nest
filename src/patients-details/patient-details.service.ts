@@ -38,6 +38,7 @@ export class PatientDetailsService {
     weight: Joi.number().not(null).required(),
     pregnantOrBreastFeed: Joi.boolean().required(),
     medicationsSelected: Joi.array(),
+    symptomsSelected: Joi.array(),
   }).messages({
     'number.base': 'Vrijednost mora biti broj',
     'string.base': `Vrijednost nije pravilnog formata`,
